@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Submission Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <p class="eyebrow">STUDENT SERVICES</p>
+            <h1>Assignment Submission Portal</h1>
+            <p class="subtitle">Submit your assignment link and review submitted assignments.</p>
+        </header>
+
+        <section class="panel">
+            <h2>Submit an assignment</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('index') }}">
+                <div class="form-group">
+                    <label for="student_name">Student name</label>
+                    <input id="student_name" name="student_name" type="text"
+                           placeholder="Enter your full name" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="registration_number">Registration number</label>
+                    <input id="registration_number" name="registration_number" type="text"
+                           placeholder="e.g. FA22-BCS-001" required maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="assignment_title">Assignment title</label>
+                    <input id="assignment_title" name="assignment_title" type="text"
+                           placeholder="Enter assignment title" required maxlength="150">
+                </div>
+
+                <div class="form-group">
+                    <label for="submission_url">Submission URL</label>
+                    <input id="submission_url" name="submission_url" type="url"
+                           placeholder="https://example.com/your-assignment" required>
+                    <small>Provide an HTTP or HTTPS link. File uploading is not required.</small>
+                </div>
+
+                <button type="submit">Submit assignment</button>
+            </form>
+        </section>
+
+        <section class="panel submissions-panel">
+            <div class="section-heading">
+                <div>
+                    <h2>Submitted assignments</h2>
+                    <p class="subtitle">{{ submissions|length }} submission(s) saved</p>
+                </div>
+            </div>
+
+            {% if submissions %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Registration number</th>
+                                <th>Assignment</th>
+                                <th>Submission link</th>
+                                <th>Submitted at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in submissions %}
+                                <tr>
+                                    <td>{{ submission.student_name }}</td>
+                                    <td>{{ submission.registration_number }}</td>
+                                    <td>{{ submission.assignment_title }}</td>
+                                    <td>
+                                        <a href="{{ submission.submission_url }}"
+                                           target="_blank" rel="noopener noreferrer">Open link</a>
+                                    </td>
+                                    <td>{{ submission.submitted_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No assignments have been submitted yet.</p>
+                    <small>Submitted assignments will appear here.</small>
+                </div>
+            {% endif %}
+        </section>
+
+        <footer>DevOps Lab Mid · Assignment Submission Portal</footer>
+    </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #172033;
+    background: #f3f6fb;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 36px 16px; }
+.container { max-width: 1050px; margin: 0 auto; }
+.page-header { margin-bottom: 26px; }
+.eyebrow {
+    color: #3159a8; font-size: 12px; font-weight: 700;
+    letter-spacing: 1.5px; margin-bottom: 8px;
+}
+h1 { font-size: 30px; margin: 0 0 8px; }
+h2 { font-size: 20px; margin: 0 0 20px; }
+.subtitle { color: #68748a; margin: 0; line-height: 1.5; }
+.panel {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 26px; margin-bottom: 22px;
+    box-shadow: 0 5px 18px rgba(25, 42, 70, 0.04);
+}
+.form-group { margin-bottom: 17px; }
+label { display: block; font-weight: 600; margin-bottom: 7px; font-size: 14px; }
+input {
+    width: 100%; padding: 12px 13px; border: 1px solid #cbd5e1;
+    border-radius: 7px; font-size: 14px; outline: none;
+}
+input:focus { border-color: #3159a8; box-shadow: 0 0 0 3px rgba(49,89,168,.12); }
+small { display: block; color: #68748a; margin-top: 6px; }
+button {
+    border: 0; border-radius: 7px; background: #244b98; color: white;
+    padding: 12px 19px; font-weight: 700; cursor: pointer; font-size: 14px;
+}
+button:hover { background: #193b7d; }
+.alert { padding: 12px 14px; border-radius: 7px; margin-bottom: 17px; font-size: 14px; }
+.alert.success { color: #17633b; background: #e9f8ef; }
+.alert.error { color: #9b2525; background: #fff0f0; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; }
+.section-heading h2 { margin-bottom: 5px; }
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+th, td { padding: 13px 11px; border-bottom: 1px solid #e8edf4; vertical-align: top; }
+th { color: #526078; background: #f8faff; font-weight: 700; }
+td a { color: #244b98; font-weight: 600; }
+.empty-state {
+    background: #f8faff; border: 1px dashed #cbd5e1; border-radius: 8px;
+    padding: 25px; text-align: center;
+}
+.empty-state p { margin: 0 0 6px; font-weight: 600; }
+footer { text-align: center; color: #8993a5; font-size: 12px; padding: 10px; }
+@media (max-width: 600px) {
+    body { padding: 22px 12px; }
+    .panel { padding: 18px; }
+    h1 { font-size: 25px; }
+}
