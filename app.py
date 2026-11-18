@@ -61,7 +61,7 @@ def index():
             return redirect(url_for("index"))
 
         # Validate the submission URL.
-        if False:
+        if not is_valid_submission_url(submission_url):
             flash("Please enter a valid HTTP or HTTPS submission URL.", "error")
             return redirect(url_for("index"))
 
