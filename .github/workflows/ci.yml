@@ -46,6 +46,107 @@ jobs:
         run: |
           python scripts/send_report.py
 
+      - name: Send Gmail notification
+        if: always()
+        env:
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+        run: |
+          python - <<'PY'
+          import os
+          import smtplib
+          import xml.etree.ElementTree as ET
+          from email.message import EmailMessage
+          from pathlib import Path
+
+          username = os.environ["EMAIL_USERNAME"]
+          password = os.environ["EMAIL_APP_PASSWORD"]
+          recipient = os.environ["EMAIL_TO"]
+
+          if not username or not password or not recipient:
+              raise RuntimeError("Email configuration is missing.")
+
+          outcome = os.environ.get("TEST_OUTCOME", "failure")
+          status = "PASSED" if outcome == "success" else "FAILED"
+
+          total = passed = failed = skipped = 0
+          test_details = []
+
+          report_file = Path("test-results.xml")
+
+          if report_file.exists():
+              root = ET.parse(report_file).getroot()
+
+              for case in root.findall(".//testcase"):
+                  total += 1
+                  failure = case.find("failure")
+                  error = case.find("error")
+                  skip = case.find("skipped")
+
+                  if failure is not None or error is not None:
+                      failed += 1
+                      result = "FAILED"
+                  elif skip is not None:
+                      skipped += 1
+                      result = "SKIPPED"
+                  else:
+                      passed += 1
+                      result = "PASSED"
+
+                  name = case.get("classname", "") + "::" + case.get("name", "")
+                  test_details.append(f"{name}: {result}")
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          branch = os.environ["GITHUB_REF_NAME"]
+          commit = os.environ["GITHUB_SHA"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          server = os.environ["GITHUB_SERVER_URL"]
+
+          run_url = f"{server}/{repo}/actions/runs/{run_id}"
+
+          message = EmailMessage()
+          message["Subject"] = f"Assignment Portal CI: {status}"
+          message["From"] = username
+          message["To"] = recipient
+
+          body = f"""
+          Assignment Submission Portal - CI Report
+
+          Overall Status: {status}
+
+          Repository: {repo}
+          Branch: {branch}
+          Commit SHA: {commit}
+          Pipeline Run ID: {run_id}
+
+          Total Tests: {total}
+          Passed Tests: {passed}
+          Failed Tests: {failed}
+          Skipped Tests: {skipped}
+
+          Individual Test Results:
+          {chr(10).join(test_details) if test_details else "No test details available."}
+
+          View Pipeline:
+          {run_url}
+          """
+
+          message.set_content(body)
+
+          with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+              server.login(username, password)
+              server.send_message(message)
+
+          print(f"Gmail notification sent successfully: {status}")
+          PY
+
       - name: Fail workflow if tests failed
         if: always() && steps.tests.outcome == 'failure'
         run: |
