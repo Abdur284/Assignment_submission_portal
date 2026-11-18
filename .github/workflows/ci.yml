@@ -11,7 +11,7 @@ on:
 
 jobs:
   test:
-    name: Run automated tests
+    name: Run tests and send report
     runs-on: ubuntu-latest
 
     steps:
@@ -29,4 +29,24 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run automated tests
-        run: pytest -v
+        id: tests
+        continue-on-error: true
+        run: |
+          pytest -v --junitxml=test-results.xml
+
+      - name: Send test report to local receiver
+        if: always()
+        env:
+          REPORT_URL: ${{ secrets.REPORT_URL }}
+          REPORT_TOKEN: ${{ secrets.REPORT_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          python scripts/send_report.py
+
+      - name: Fail workflow if tests failed
+        if: always() && steps.tests.outcome == 'failure'
+        run: |
+          python -c "raise SystemExit(1)"
